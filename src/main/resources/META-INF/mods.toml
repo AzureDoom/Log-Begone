@@ -1,0 +1,18 @@
+modLoader="javafml"
+loaderVersion="[38,)"
+license="GPLv3"
+[[mods]]
+modId="logbegone"
+version="${file.jarVersion}"
+displayName="Log Begone"
+logoFile="icon.png"
+authors="AzureDoomC, Bravarly" 
+description='''
+I hate log spam, don't you?
+'''
+[[dependencies.forge]]
+    modId="forge"
+    mandatory=true 
+    versionRange="[38.0.17,)" 
+    ordering="NONE"
+    side="BOTH"
