@@ -71,7 +71,7 @@ public class LogBegoneMod implements PreLaunchEntrypoint {
 
 		if (!config.exists()) {
 			try {
-				Files.copy(LogBegoneMod.class.getResourceAsStream("/assets/shutupconsole/config.toml"), config.toPath(),
+				Files.copy(LogBegoneMod.class.getResourceAsStream("/assets/logbegone/config.toml"), config.toPath(),
 						new CopyOption[0]);
 			} catch (IOException e) {
 				LOGGER.error("An error occurred when creating a new config", e);
