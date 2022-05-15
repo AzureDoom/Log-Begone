@@ -1,0 +1,118 @@
+buildscript {
+    repositories {
+    	maven { url  = 'https://plugins.gradle.org/m2/' }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
+    }
+}
+
+plugins {
+	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'maven-publish'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	maven { url 'https://www.cursemaven.com' }
+}
+
+
+configurations {
+    shade
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+  	implementation shade("com.moandjiezana.toml:toml4j:0.7.+") { transitive = false }
+  	compileOnly "org.apache.logging.log4j:log4j-core:2.17.+"
+  	compileOnly 'org.jetbrains:annotations:22.+'
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+}
+
+remapJar {
+    dependsOn(shadowJar)
+    inputFile = shadowJar.archiveFile
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+	}
+}
+
+shadowJar {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.output
+    duplicatesStrategy = 'exclude'
+    exclude('META-INF/services/**')
+    relocate 'com.moandjiezana', 'mod.azure.shadowed.moandjiezana'
+    classifier 'dev'
+}
+
+if (file('key.properties').exists()) {
+    curseforge {
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "623560"
+        	releaseType = "release"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+			addGameVersion("1.18.2")
+			addGameVersion("Fabric")
+			addGameVersion("Java 17")
+        	mainArtifact(remapJar)
+
+       		relations {
+            	requiredDependency 'fabric-api'      
+        	}
+
+        	afterEvaluate {
+            	uploadTask.dependsOn("remapJar")
+        	}
+    	}
+    	options {
+        	forgeGradleIntegration = false
+    	}
+    }
+}
