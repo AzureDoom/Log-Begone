@@ -1,21 +1,23 @@
 buildscript {
     repositories {
-    	maven { url  = 'https://plugins.gradle.org/m2/' }
+        maven { url = "https://maven.minecraftforge.net/" }
+		maven { url = "https://plugins.gradle.org/m2/" }
+        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
     }
 }
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'java'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
 
-plugins {
-	id 'fabric-loom' version '0.11-SNAPSHOT'
-	id 'maven-publish'
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
-}
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -25,66 +27,85 @@ repositories {
 	maven { url 'https://www.cursemaven.com' }
 }
 
-
 configurations {
+    library
     shade
+    implementation.extendsFrom library
+    shade.extendsFrom library
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            mods {
+                logbegone {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            mods {
+                logbegone {
+                    source sourceSets.main
+                }
+            }
+        }
+        data {
+            workingDirectory project.file('run')
+            args '--mod', 'logbegone', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                logbegone {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-  	implementation shade("com.moandjiezana.toml:toml4j:0.7.+") { transitive = false }
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.19'
   	compileOnly "org.apache.logging.log4j:log4j-core:2.17.+"
   	compileOnly 'org.jetbrains:annotations:22.+'
 }
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
-}
-
-java {
-	withSourcesJar()
-}
-
-remapJar {
-    dependsOn(shadowJar)
-    inputFile = shadowJar.archiveFile
-}
-
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
+    manifest {
+        attributes([
+                "Specification-Title"     : "Log Begone",
+                "Specification-Vendor"    : "AzureDoom",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "AzureDoom",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
+
+jar.finalizedBy('reobfJar')
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-
-	repositories {
-	}
-}
-
-shadowJar {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.output
-    duplicatesStrategy = 'exclude'
-    exclude('META-INF/services/**')
-    relocate 'com.moandjiezana', 'mod.azure.shadowed.moandjiezana'
-    classifier 'dev'
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
 }
 
 if (file('key.properties').exists()) {
@@ -101,17 +122,8 @@ if (file('key.properties').exists()) {
 			addGameVersion("1.18.2")
 			addGameVersion("1.18.1")
 			addGameVersion("1.18")
-			addGameVersion("Fabric")
+			addGameVersion("Forge")
 			addGameVersion("Java 17")
-        	mainArtifact(remapJar)
-
-       		relations {
-            	requiredDependency 'fabric-api'      
-        	}
-
-        	afterEvaluate {
-            	uploadTask.dependsOn("remapJar")
-        	}
     	}
     	options {
         	forgeGradleIntegration = false
