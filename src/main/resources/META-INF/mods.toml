@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[38,)"
+loaderVersion="[36,)"
 license="GPLv3"
 [[mods]]
 modId="logbegone"
@@ -13,6 +13,6 @@ I hate log spam, don't you?
 [[dependencies.forge]]
     modId="forge"
     mandatory=true 
-    versionRange="[38.0.17,)" 
+    versionRange="[36.0.0,)" 
     ordering="NONE"
     side="BOTH"
