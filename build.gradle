@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+        classpath "com.modrinth.minotaur:Minotaur:2.1.2"
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -16,6 +17,8 @@ apply plugin: 'maven-publish'
 apply plugin: 'java'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
+apply plugin: "com.modrinth.minotaur"
+import com.modrinth.minotaur.dependencies.ModDependency
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -129,4 +132,21 @@ if (file('key.properties').exists()) {
         	forgeGradleIntegration = false
     	}
     }
+}
+
+if (file('key.properties').exists()) {
+	modrinth {
+		def modrinthProp = new Properties()
+		File secretPropsFile = file("key.properties")
+		modrinthProp.load(secretPropsFile.newInputStream())
+		
+		token = modrinthProp.getProperty('modrinthKey')
+		projectId = '9ON3zv6e' 
+		versionNumber = project.mod_version 
+		versionName = 'Forge 1.19'
+		uploadFile = jar 
+		changelog = rootProject.file("changelog.txt").text
+		gameVersions = ['1.19', '1.19.1', '1.19.2']
+		loaders = ['forge']
+	}
 }
