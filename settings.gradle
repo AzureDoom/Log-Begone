@@ -8,3 +8,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+rootProject.name = 'log-begone-fabric-1.18'
