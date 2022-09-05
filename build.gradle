@@ -43,6 +43,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            taskName 'logbegoneforge1.18_client'
             mods {
                 logbegone {
                     source sourceSets.main
@@ -51,15 +52,7 @@ minecraft {
         }
         server {
             workingDirectory project.file('run')
-            mods {
-                logbegone {
-                    source sourceSets.main
-                }
-            }
-        }
-        data {
-            workingDirectory project.file('run')
-            args '--mod', 'logbegone', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            taskName 'logbegoneforge1.18_server'
             mods {
                 logbegone {
                     source sourceSets.main
