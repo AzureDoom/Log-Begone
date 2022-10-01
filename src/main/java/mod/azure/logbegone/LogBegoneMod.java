@@ -46,21 +46,22 @@ public class LogBegoneMod {
 		Iterator<? extends String> regexFilter = phraseFilter.iterator();
 
 		String phrase;
-		do {
-			if (!regexFilter.hasNext()) {
-				List<? extends String> regexFilter1 = LogBegoneConfig.COMMON.regex.get();
-				Iterator<? extends String> phrase1 = regexFilter1.iterator();
-				String regex;
-				do {
-					if (!phrase1.hasNext()) {
-						return false;
-					}
-					regex = (String) phrase1.next();
-				} while (!message.matches(regex));
-				return true;
-			}
-			phrase = (String) regexFilter.next();
-		} while (!message.contains(phrase));
+		if (message != null)
+			do {
+				if (!regexFilter.hasNext()) {
+					List<? extends String> regexFilter1 = LogBegoneConfig.COMMON.regex.get();
+					Iterator<? extends String> phrase1 = regexFilter1.iterator();
+					String regex;
+					do {
+						if (!phrase1.hasNext()) {
+							return false;
+						}
+						regex = (String) phrase1.next();
+					} while (!message.matches(regex));
+					return true;
+				}
+				phrase = (String) regexFilter.next();
+			} while (!message.contains(phrase));
 
 		return true;
 	}
