@@ -47,21 +47,22 @@ public class LogBegoneMod implements PreLaunchEntrypoint {
 		Iterator<String> regexFilter = phraseFilter.iterator();
 
 		String phrase;
-		do {
-			if (!regexFilter.hasNext()) {
-				List<String> regexFilter1 = CONFIG.getList("logbegone.regex");
-				Iterator<String> phrase1 = regexFilter1.iterator();
-				String regex;
-				do {
-					if (!phrase1.hasNext()) {
-						return false;
-					}
-					regex = (String) phrase1.next();
-				} while (!message.matches(regex));
-				return true;
-			}
-			phrase = (String) regexFilter.next();
-		} while (!message.contains(phrase));
+		if (message != null)
+			do {
+				if (!regexFilter.hasNext()) {
+					List<String> regexFilter1 = CONFIG.getList("logbegone.regex");
+					Iterator<String> phrase1 = regexFilter1.iterator();
+					String regex;
+					do {
+						if (!phrase1.hasNext()) {
+							return false;
+						}
+						regex = (String) phrase1.next();
+					} while (!message.matches(regex));
+					return true;
+				}
+				phrase = (String) regexFilter.next();
+			} while (!message.contains(phrase));
 
 		return true;
 	}
