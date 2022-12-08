@@ -102,7 +102,9 @@ if (file('key.properties').exists()) {
         	changelog = file('CHANGELOG.txt')
 			addGameVersion("1.19.1")
 			addGameVersion("1.19.2")
+			addGameVersion("1.19.3")
 			addGameVersion("Fabric")
+			addGameVersion("Quilt")
 			addGameVersion("Java 17")
         	mainArtifact(remapJar)
 
@@ -132,7 +134,7 @@ if (file('key.properties').exists()) {
 		versionName = 'Fabric/Quilt 1.19'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19', '1.19.1', '1.19.2']
+		gameVersions = ['1.19', '1.19.1', '1.19.2', '1.19.3']
 		loaders = ['fabric', 'quilt']
 		dependencies { 
         	required.project "fabric-api"
