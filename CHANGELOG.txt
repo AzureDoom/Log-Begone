@@ -1,3 +1,3 @@
-v.1.0.3
+v.1.0.4
 
-- Updated for 1.19.3.
+- Regex should be fixed now.
