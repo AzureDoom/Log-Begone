@@ -38,7 +38,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.19.3'
     runs {
         client {
             workingDirectory project.file('run')
@@ -70,7 +70,7 @@ minecraft.runs.all {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.0.0'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.0.1'
   	compileOnly "org.apache.logging.log4j:log4j-core:2.17.+"
   	compileOnly 'org.jetbrains:annotations:22.+'
 }
@@ -118,6 +118,7 @@ if (file('key.properties').exists()) {
 			addGameVersion("1.19")
         	addGameVersion("1.19.1")
         	addGameVersion("1.19.2")
+        	addGameVersion("1.19.3")
 			addGameVersion("Forge")
 			addGameVersion("Java 17")
     	}
@@ -139,7 +140,7 @@ if (file('key.properties').exists()) {
 		versionName = 'Forge 1.19'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19', '1.19.1', '1.19.2']
+		gameVersions = ['1.19', '1.19.1', '1.19.2', '1.19.3']
 		loaders = ['forge']
 	}
 }
