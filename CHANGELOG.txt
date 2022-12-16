@@ -1,3 +1,3 @@
-v.1.0.2
+v.1.0.3
 
-- Null check messages to fix crashing with Carry On.
+- Regex should be fixed now.
