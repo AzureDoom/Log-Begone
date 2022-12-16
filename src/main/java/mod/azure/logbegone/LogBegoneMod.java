@@ -3,7 +3,6 @@ package mod.azure.logbegone;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,27 +41,24 @@ public class LogBegoneMod {
 	}
 
 	public static boolean shouldFilterMessage(String message) {
-		List<? extends String> phraseFilter = LogBegoneConfig.COMMON.phrases.get();
-		Iterator<? extends String> regexFilter = phraseFilter.iterator();
-
+		Iterator<? extends String> stringIterator = LogBegoneConfig.COMMON.phrases.get().iterator();
 		String phrase;
+
+		Iterator<? extends String> regexIterator = LogBegoneConfig.COMMON.regex.get().iterator();
+		String regex;
+
 		if (message != null)
 			do {
-				if (!regexFilter.hasNext()) {
-					List<? extends String> regexFilter1 = LogBegoneConfig.COMMON.regex.get();
-					Iterator<? extends String> phrase1 = regexFilter1.iterator();
-					String regex;
+				if (!stringIterator.hasNext()) {
 					do {
-						if (!phrase1.hasNext()) {
+						if (!regexIterator.hasNext())
 							return false;
-						}
-						regex = (String) phrase1.next();
+						regex = (String) regexIterator.next();
 					} while (!message.matches(regex));
 					return true;
 				}
-				phrase = (String) regexFilter.next();
+				phrase = (String) stringIterator.next();
 			} while (!message.contains(phrase));
-
 		return true;
 	}
 
