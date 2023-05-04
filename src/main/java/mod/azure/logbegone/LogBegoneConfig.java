@@ -19,8 +19,8 @@ public class LogBegoneConfig {
 
 		public Common(ForgeConfigSpec.Builder builder) {
 			builder.push("logbegone");
-			this.phrases = builder.defineList("phrases", Lists.newArrayList("the_aether"), o -> true);
-			this.regex = builder.defineList("regex", Lists.newArrayList(""), o -> true);
+			this.phrases = builder.defineList("phrases", Lists.newArrayList("Disconnecting VANILLA connection attempt", "Channels "), o -> true);
+			this.regex = builder.defineList("regex", Lists.newArrayList("Disconnecting VANILLA connection attempt", "Channels "), o -> true);
 			builder.pop();
 		}
 	}
