@@ -2,7 +2,7 @@
 
 [logbegone]
 # If a log message has one of these phrases, it will be filtered out from logging
-phrases = ["the_aether"]
+phrases = ["Disconnecting VANILLA connection attempt", "Channels "]
 
 # If a log message matches one of these regex patterns, it will be filtered out from logging. EX: 
-regex = []
+regex = ["Disconnecting VANILLA connection attempt", "Channels "]
