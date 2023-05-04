@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -41,10 +42,10 @@ public class LogBegoneMod implements PreLaunchEntrypoint {
 	}
 
 	public static boolean shouldFilterMessage(String message) {
-		var stringIterator = CONFIG.getList("logbegone.phrases").iterator();
+		Iterator stringIterator = CONFIG.getList("logbegone.phrases").iterator();
 		String phrase;
 
-		var regexIterator = CONFIG.getList("logbegone.regex").iterator();
+		Iterator regexIterator = CONFIG.getList("logbegone.regex").iterator();
 		String regex;
 
 		if (message != null)

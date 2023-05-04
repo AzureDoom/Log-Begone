@@ -3,21 +3,21 @@ buildscript {
     	maven { url  = 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
     }
 }
 
 plugins {
-	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'fabric-loom' version '0.7-SNAPSHOT'
 	id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id "com.modrinth.minotaur" version "2.+"
 }
 import com.modrinth.minotaur.dependencies.ModDependency
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -51,7 +51,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 8
 }
 
 java {
@@ -60,13 +60,11 @@ java {
 
 remapJar {
     dependsOn(shadowJar)
-    inputFile = shadowJar.archiveFile
+    input = shadowJar.archivePath
 }
 
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
+    from "LICENSE"
 }
 
 publishing {
@@ -100,11 +98,9 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-			addGameVersion("1.18.2")
-			addGameVersion("1.18.1")
-			addGameVersion("1.18")
+			addGameVersion("1.16.5")
 			addGameVersion("Fabric")
-			addGameVersion("Java 17")
+			addGameVersion("Java 8")
         	mainArtifact(remapJar)
 
        		relations {
@@ -130,11 +126,11 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '9ON3zv6e' 
 		versionNumber = project.mod_version 
-		versionName = 'Fabric/Quilt 1.18.2'
+		versionName = 'Fabric 1.16.5'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.18.2']
-		loaders = ['fabric', 'quilt']
+		gameVersions = ['1.16.5']
+		loaders = ['fabric']
 		dependencies { 
         	required.project "fabric-api"
    		}
