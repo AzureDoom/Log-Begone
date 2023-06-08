@@ -8,4 +8,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'log-begone-forge-1.19'
+rootProject.name = 'log-begone-forge-1.20'
