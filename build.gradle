@@ -38,7 +38,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20'
+    mappings channel: 'official', version: '1.20.1'
     runs {
         client {
             workingDirectory project.file('run')
@@ -70,7 +70,7 @@ minecraft.runs.all {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20-46.0.1'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.0.0'
   	compileOnly "org.apache.logging.log4j:log4j-core:2.17.+"
   	compileOnly 'org.jetbrains:annotations:22.+'
 }
@@ -115,7 +115,7 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-        	addGameVersion("1.20")
+        	addGameVersion("1.20.1")
 			addGameVersion("Forge")
 			addGameVersion("Java 17")
     	}
@@ -134,10 +134,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '9ON3zv6e' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.20'
+		versionName = 'Forge 1.20.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.20']
+		gameVersions = ['1.20.1']
 		loaders = ['forge']
 	}
 }
