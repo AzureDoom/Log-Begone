@@ -1,30 +1,20 @@
-buildscript {
-    repositories {
-        maven { url = "https://maven.minecraftforge.net/" }
-		maven { url = "https://plugins.gradle.org/m2/" }
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
-        classpath "com.modrinth.minotaur:Minotaur:2.+"
-    }
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.gradle' version '[6.0.12,6.2)'
+    id "com.modrinth.minotaur" version "2.+"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-apply plugin: 'java'
-apply plugin: 'com.matthewprenger.cursegradle'
-apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
-apply plugin: "com.modrinth.minotaur"
-import com.modrinth.minotaur.dependencies.ModDependency
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = archives_base_name
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
 
 repositories {
 	maven { url 'https://www.cursemaven.com' }
@@ -38,25 +28,29 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20.1'
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+    generateRunFolders = true
+
     runs {
-        client {
-            workingDirectory project.file('run')
-            taskName 'logbegoneforge1.19_client'
+        configureEach {
+            workingDirectory project.file("run/${it.name}")
             mods {
-                logbegone {
+                "${mod_id}" {
                     source sourceSets.main
                 }
             }
         }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            taskName 'logbegone-neo-1.20_client'
+        }
+
         server {
-            workingDirectory project.file('run')
-            taskName 'logbegoneforge1.19_server'
-            mods {
-                logbegone {
-                    source sourceSets.main
-                }
-            }
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+            taskName 'logbegone-neo-1.20_server'
         }
     }
 }
@@ -70,26 +64,40 @@ minecraft.runs.all {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.0.0'
+    minecraft "net.neoforged:forge:${minecraft_version}-${neo_version}"
   	compileOnly "org.apache.logging.log4j:log4j-core:2.17.+"
   	compileOnly 'org.jetbrains:annotations:22.+'
 }
 
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "Log Begone",
-                "Specification-Vendor"    : "AzureDoom",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : "AzureDoom",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+            neo_version         : neo_version, neo_version_range: neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_description: mod_description, 
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
     }
 }
 
-jar.finalizedBy('reobfJar')
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : "AzureDoom",
+                'Specification-Version'   : '1', // We are version 1 of ourselves
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : "AzureDoom",
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
 
 publishing {
     publications {
@@ -104,6 +112,10 @@ publishing {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' 
+}
+
 if (file('key.properties').exists()) {
     curseforge {
     	def curseProp = new Properties()
@@ -116,7 +128,7 @@ if (file('key.properties').exists()) {
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
         	addGameVersion("1.20.1")
-			addGameVersion("Forge")
+			addGameVersion("NeoForge")
 			addGameVersion("Java 17")
     	}
     	options {
@@ -134,10 +146,9 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '9ON3zv6e' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.20.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20.1']
-		loaders = ['forge']
+		loaders = ['neoforge']
 	}
 }
