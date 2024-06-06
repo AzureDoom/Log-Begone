@@ -13,16 +13,18 @@ base {
 
 // Enable the Jar-in-Jar system for your mod
 jarJar.enable()
+
 //minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
+
 tasks.named('jarJar') {
-    archiveClassifier = ''
+    archiveClassifier = 'slim'
 }
 
 runs {
     configureEach {
         modSource project.sourceSets.main
         dependencies {
-            runtime("com.moandjiezana.toml:toml4j:0.7.+")
+            runtime("com.moandjiezana.toml:toml4j:[0.7.2,1.0)")
         }
     }
 
@@ -50,8 +52,8 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly project(":common")
-    implementation "com.moandjiezana.toml:toml4j:0.7.+"
-    jarJar(group: "com.moandjiezana.toml", name: "toml4j", version: "0.7.+")
+    implementation "com.moandjiezana.toml:toml4j:[0.7.2,1.0)"
+    jarJar(group: "com.moandjiezana.toml", name: "toml4j", version: "[0.7.2,1.0)")
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code

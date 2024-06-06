@@ -15,10 +15,7 @@ import java.util.Map;
 @Mod(CommonMod.MOD_ID)
 public final class NeoForgeMod {
 
-    public static NeoForgeMod instance;
-
     public NeoForgeMod(IEventBus modEventBus) {
-        instance = this;
         System.setOut(new CommonMod.SystemPrintFilter(System.out));
         java.util.logging.Logger.getLogger("").setFilter(CommonMod.FILTER);
         ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(CommonMod.FILTER);
