@@ -2,7 +2,6 @@ package mod.azure.logbegone;
 
 import com.moandjiezana.toml.Toml;
 import mod.azure.logbegone.platform.Services;
-import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.File;

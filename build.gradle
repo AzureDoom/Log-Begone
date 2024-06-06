@@ -9,7 +9,7 @@ plugins {
     id "org.jetbrains.gradle.plugin.idea-ext" version "${jetbrains_gradle_idea_ext_version}"
 }
 
-def JAVA_VERSION = 17
+def JAVA_VERSION = 21
 def MAX_DISPLAY_ERRORS = "1000"
 
 subprojects {
@@ -101,13 +101,5 @@ subprojects {
     tasks.withType(GenerateModuleMetadata).configureEach {
 
         enabled = false
-    }
-
-    // Tells gradle to show 1000 errors instead of the default count of 100.
-    // See: https://stackoverflow.com/a/31905248
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xmaxerrs" << MAX_DISPLAY_ERRORS
-        }
     }
 }
