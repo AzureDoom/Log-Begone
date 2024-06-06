@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "renameme",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "homepage": "${mod_url}",
+    "issues": "${mod_issues}",
+    "sources": "${mod_sources}"
+  },
+  "license": "${mod_license}",
+  "icon": "${mod_logo}",
+  "environment": "*",
+  "entrypoints": {
+    "preLaunch": [
+      "mod.azure.logbegone.FabricLibMod"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "java": ">=17",
+    "minecraft": "~${minecraft_version}"
+  }
+}

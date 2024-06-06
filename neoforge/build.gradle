@@ -1,0 +1,94 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version "${neo_gradle_userdev_version}"
+    id 'net.neoforged.gradle.mixin' version "${neo_gradle_mixin_version}"
+    id "me.modmuss50.mod-publish-plugin"
+}
+
+base {
+    archivesName = "${mod_id}-neo-${minecraft_version}"
+}
+
+// Enable the Jar-in-Jar system for your mod
+jarJar.enable()
+//minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
+tasks.named('jarJar') {
+    archiveClassifier = ''
+}
+
+runs {
+    configureEach {
+        modSource project.sourceSets.main
+        dependencies {
+            runtime("com.moandjiezana.toml:toml4j:0.7.+")
+        }
+    }
+
+    client {
+        // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
+
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        programArgument '--nogui'
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    maven { url 'https://libs.azuredoom.com:4443/mods' }
+    maven { url "https://minecraft.curseforge.com/api/maven/" }
+    maven { url "https://cfa2.cursemaven.com" }
+    maven { url 'https://api.modrinth.com/maven' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly project(":common")
+    implementation "com.moandjiezana.toml:toml4j:0.7.+"
+    jarJar(group: "com.moandjiezana.toml", name: "toml4j", version: "0.7.+")
+}
+
+// NeoGradle compiles the game, but we don't want to add our common code to the game's code
+Spec<Task> notNeoTask = { Task it -> !it.name.startsWith("neo") } as Spec<Task>
+
+tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+tasks.withType(Javadoc).matching(notNeoTask).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+
+tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
+    from project(":common").sourceSets.main.resources
+}
+
+if (file('key.properties').exists()) {
+    publishMods {
+        def releaseProp = new Properties()
+        File secretPropsFile = file("key.properties")
+        releaseProp.load(secretPropsFile.newInputStream())
+        file = jar.archiveFile
+        changelog = rootProject.file("changelog.md").text
+        type = STABLE
+        modLoaders.add("neoforge")
+
+        curseforge {
+            projectId = project.curseforgeID
+            projectSlug = project.projectSlug
+            accessToken = releaseProp.getProperty("curseKey")
+            minecraftVersions.add("${minecraft_version}")
+        }
+        modrinth {
+            projectId = project.modrinthID
+            accessToken = releaseProp.getProperty('modrinthKey')
+            minecraftVersions.add("${minecraft_version}")
+        }
+    }
+}
