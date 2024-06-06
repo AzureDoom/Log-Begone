@@ -21,7 +21,6 @@ repositories {
 
 dependencies {
     compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
-    compileOnly "com.moandjiezana.toml:toml4j:0.7.+"
 }
 
 publishing {

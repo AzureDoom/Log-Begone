@@ -1,55 +1,74 @@
 package mod.azure.logbegone;
 
-import com.moandjiezana.toml.Toml;
+import com.google.gson.*;
 import mod.azure.logbegone.platform.Services;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.CopyOption;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class CommonMod {
     public static final String MOD_ID = "logbegone";
     public static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(MOD_ID);
-    public static final Toml CONFIG = getConfig();
+    public static final JsonObject CONFIG = getConfig();
     public static final JavaUtilLog4jFilter FILTER = new JavaUtilLog4jFilter();
 
     public static boolean shouldFilterMessage(String message) {
-        var stringIterator = CONFIG.getList("logbegone.phrases").iterator();
-        String phrase;
+        JsonArray phrases = CONFIG.has("logbegone") ? CONFIG.getAsJsonObject("logbegone").getAsJsonArray("phrases") : null;
+        JsonArray regexes = CONFIG.has("logbegone") ? CONFIG.getAsJsonObject("logbegone").getAsJsonArray("regex") : null;
 
-        var regexIterator = CONFIG.getList("logbegone.regex").iterator();
-        String regex;
-
-        if (message != null)
-            do {
-                if (!stringIterator.hasNext()) {
-                    do {
-                        if (!regexIterator.hasNext())
-                            return false;
-                        regex = (String) regexIterator.next();
-                    } while (!message.matches(regex));
-                    return true;
+        if (message != null) {
+            if (phrases != null) {
+                for (var phraseElement : phrases) {
+                    String phrase = phraseElement.getAsString();
+                    if (message.contains(phrase)) {
+                        return true;
+                    }
                 }
-                phrase = (String) stringIterator.next();
-            } while (!message.contains(phrase));
-        return true;
+            }
+
+            if (regexes != null) {
+                for (var regexElement : regexes) {
+                    String regex = regexElement.getAsString();
+                    if (message.matches(regex)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
-    private static Toml getConfig() {
-        File config = new File(Services.PLATFORM.getConfigLocation() + "/logbegone.toml");
+    private static JsonObject getConfig() {
+        File config = new File(Services.PLATFORM.getConfigLocation() + "/logbegone.json");
 
         if (!config.exists()) {
             try {
-                Files.copy(CommonMod.class.getResourceAsStream("/assets/logbegone/config.toml"), config.toPath(),
-                        new CopyOption[0]);
+                Files.copy(CommonMod.class.getResourceAsStream("/assets/logbegone/config.json"), config.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 LOGGER.error("An error occurred when creating a new config", e);
             }
         }
-        return new Toml().read(config);
+
+        try (FileReader reader = new FileReader(config)) {
+            return JsonParser.parseReader(reader).getAsJsonObject();
+        } catch (IOException | JsonSyntaxException e) {
+            LOGGER.error("An error occurred when reading the config file", e);
+            return new JsonObject();  // Return an empty JSON object in case of error
+        }
+    }
+
+    private static void saveConfig(JsonObject config) {
+        File configFile = new File(Services.PLATFORM.getConfigLocation() + "/logbegone.json");
+
+        try (FileWriter writer = new FileWriter(configFile)) {
+            new Gson().toJson(config, writer);
+        } catch (IOException e) {
+            LOGGER.error("An error occurred when saving the config file", e);
+        }
     }
 
     public static final class SystemPrintFilter extends PrintStream {
