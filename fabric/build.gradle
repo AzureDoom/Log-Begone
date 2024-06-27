@@ -1,13 +1,7 @@
 plugins {
-    id 'java'
-    id 'idea'
-    id 'maven-publish'
-    id 'fabric-loom'
-    id "me.modmuss50.mod-publish-plugin"
-}
-
-base {
-    archivesName = "${mod_id}-fabric-${minecraft_version}"
+    id 'multiloader-loader'
+    id "fabric-loom" version "${fabric_loom_version}"
+    id 'me.modmuss50.mod-publish-plugin'
 }
 
 repositories {
@@ -24,10 +18,12 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    compileOnly project(":common")
 }
 
 loom {
@@ -51,22 +47,6 @@ loom {
             runDir("runs/server")
         }
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    source(project(":common").sourceSets.main.allSource)
-}
-
-processResources {
-    from project(":common").sourceSets.main.resources
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
-}
-
-jar {
-    from "LICENSE"
 }
 
 if (file('key.properties').exists()) {
